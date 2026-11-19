@@ -4,10 +4,20 @@
 //  Modifiez ces valeurs selon votre hébergement
 // ============================================================
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'novagroup');
-define('DB_USER', 'root');       // Remplacez par votre user MySQL
-define('DB_PASS', '');           // Remplacez par votre mot de passe MySQL
+// Configuration base de données automatique (Localhost & InfinityFree)
+$isLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1']);
+
+if ($isLocal) {
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'novagroup');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+} else {
+    define('DB_HOST', 'sql105.infinityfree.com');
+    define('DB_NAME', 'if0_43479942_novagroup');
+    define('DB_USER', 'if0_43479942');
+    define('DB_PASS', 'EmQi1jeNRGKE');
+}
 define('DB_CHARSET', 'utf8mb4');
 
 // Session
