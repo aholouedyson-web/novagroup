@@ -2,7 +2,11 @@
 // ============================================================
 //  NOVAGROUP — Point d'entrée principal
 // ============================================================
-require_once __DIR__ . '/includes/config.php';
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+} elseif (file_exists(__DIR__ . '/includes/config.php')) {
+    require_once __DIR__ . '/includes/config.php';
+}
 startSession();
 
 $page     = $_GET['page'] ?? 'home';

@@ -3,7 +3,15 @@
 //  NOVAGROUP — API REST (api/api.php)
 //  Tous les appels AJAX passent ici
 // ============================================================
-require_once __DIR__ . '/../includes/config.php';
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+} elseif (file_exists(__DIR__ . '/../config.php')) {
+    require_once __DIR__ . '/../config.php';
+} elseif (file_exists(__DIR__ . '/../includes/config.php')) {
+    require_once __DIR__ . '/../includes/config.php';
+} else {
+    require_once __DIR__ . '/includes/config.php';
+}
 
 header('Content-Type: application/json');
 startSession();
