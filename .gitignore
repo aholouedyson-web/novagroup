@@ -1,0 +1,9 @@
+# Dépendances
+/vendor/
+/node_modules/
+
+# Fichiers système et IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
