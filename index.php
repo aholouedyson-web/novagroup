@@ -1031,7 +1031,12 @@ $pending = $pendingStmt->fetch() ?: null;
 //  NOVAGROUP — JavaScript Frontend (PHP version)
 // ═══════════════════════════════════════════════
 
-const API = 'api/api.php';
+// Détection automatique du chemin API
+const API = (() => {
+  const base = window.location.pathname.replace(/\/[^/]*$/, '/');
+  // Essayer api/api.php puis api.php à la racine
+  return base + 'api/api.php';
+})();
 
 // Scroll nav
 window.addEventListener('scroll', () => {
@@ -1054,8 +1059,20 @@ async function api(action, data = {}) {
   const fd = new FormData();
   fd.append('action', action);
   for (const [k, v] of Object.entries(data)) fd.append(k, v);
-  const r = await fetch(API, { method: 'POST', body: fd });
-  return r.json();
+  try {
+    const r = await fetch(API, { method: 'POST', body: fd });
+    const text = await r.text();
+    // Chercher le JSON dans la réponse (InfinityFree peut injecter du HTML autour)
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('Réponse non-JSON reçue:', text.substring(0, 300));
+      return { error: 'Erreur serveur. Vérifiez la console pour plus de détails.' };
+    }
+    return JSON.parse(jsonMatch[0]);
+  } catch(e) {
+    console.error('Erreur API:', e);
+    return { error: 'Erreur de connexion au serveur.' };
+  }
 }
 
 // ── LOGOUT ──
@@ -1105,7 +1122,8 @@ async function loginUser() {
   btn.disabled = false; btn.textContent = 'Se connecter →';
   if (res.error) return toast(res.error, 'error');
   toast('Bienvenue ' + res.name + ' !', 'success');
-  setTimeout(() => goTo(res.is_admin ? 'admin' : 'dashboard'), 700);
+  // Délai plus long pour laisser le cookie de session s'établir
+  setTimeout(() => window.location.href = (res.is_admin ? '?page=admin' : '?page=dashboard'), 1500);
 }
 
 // ── DASH TABS ──

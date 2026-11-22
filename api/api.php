@@ -77,6 +77,7 @@ switch ($action) {
 
         $_SESSION['user_id']  = $user['id'];
         $_SESSION['is_admin'] = (bool)$user['is_admin'];
+        session_write_close(); // force l'écriture de la session avant de répondre
 
         jsonResponse([
             'success'  => true,
