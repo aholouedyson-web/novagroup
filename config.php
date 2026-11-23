@@ -16,7 +16,7 @@ if ($isLocal) {
     define('DB_HOST', 'sql105.infinityfree.com');
     define('DB_NAME', 'if0_43479942_novagroup');
     define('DB_USER', 'if0_43479942');
-    define('DB_PASS', 'EmQi1jeNRGKE');
+    define('DB_PASS', 'EmQIjeNRGKE');
 }
 define('DB_CHARSET', 'utf8mb4');
 
