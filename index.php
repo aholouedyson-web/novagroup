@@ -1031,12 +1031,8 @@ $pending = $pendingStmt->fetch() ?: null;
 //  NOVAGROUP — JavaScript Frontend (PHP version)
 // ═══════════════════════════════════════════════
 
-// Détection automatique du chemin API
-const API = (() => {
-  const base = window.location.pathname.replace(/\/[^/]*$/, '/');
-  // Essayer api/api.php puis api.php à la racine
-  return base + 'api/api.php';
-})();
+// Chemin API dynamique avec fallback automatique
+let API = 'api.php';
 
 // Scroll nav
 window.addEventListener('scroll', () => {
@@ -1060,7 +1056,12 @@ async function api(action, data = {}) {
   fd.append('action', action);
   for (const [k, v] of Object.entries(data)) fd.append(k, v);
   try {
-    const r = await fetch(API, { method: 'POST', body: fd });
+    let r = await fetch(API, { method: 'POST', body: fd });
+    // Si 404, basculer automatiquement entre api.php et api/api.php
+    if (r.status === 404) {
+      API = (API === 'api.php') ? 'api/api.php' : 'api.php';
+      r = await fetch(API, { method: 'POST', body: fd });
+    }
     const text = await r.text();
     // Chercher le JSON dans la réponse (InfinityFree peut injecter du HTML autour)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
