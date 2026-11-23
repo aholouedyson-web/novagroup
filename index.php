@@ -1065,8 +1065,12 @@ async function api(action, data = {}) {
     // Chercher le JSON dans la réponse (InfinityFree peut injecter du HTML autour)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error('Réponse non-JSON reçue:', text.substring(0, 300));
-      return { error: 'Erreur serveur. Vérifiez la console pour plus de détails.' };
+      console.error('Réponse non-JSON reçue:', text);
+      // Extraire le texte propre si c'est du HTML d'erreur
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const msg = doc.body?.textContent?.trim().replace(/\s+/g, ' ').substring(0, 150);
+      return { error: msg || 'Erreur serveur.' };
     }
     return JSON.parse(jsonMatch[0]);
   } catch(e) {

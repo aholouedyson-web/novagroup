@@ -36,7 +36,7 @@ function db(): PDO {
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
         } catch (PDOException $e) {
-            http_response_code(500);
+            header('Content-Type: application/json; charset=utf-8');
             die(json_encode(['error' => 'Erreur de connexion à la base de données : ' . $e->getMessage()]));
         }
     }
@@ -86,8 +86,9 @@ function requireAdmin(): array {
 }
 
 function jsonResponse(array $data, int $code = 200): never {
-    http_response_code($code);
-    header('Content-Type: application/json');
+    // Ne pas envoyer de code 4xx/5xx sur hébergeur gratuit pour éviter qu'Apache n'écrase le JSON par du HTML
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode($data);
     exit;
 }
