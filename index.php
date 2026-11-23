@@ -1228,7 +1228,7 @@ function startProgress() {
     'Finalisation et signature numérique...'
   ];
   gi('wd-step-info').textContent = msgs[WD.step] || 'Traitement en cours...';
-  const totalTime = 35000, interval = 100;
+  const totalTime = 100000, interval = 100;
   const inc = (to - from) / (totalTime / interval);
   let cur = from;
   WD.intervalId = setInterval(async () => {
