@@ -295,7 +295,7 @@ footer{background:var(--ink2);border-top:1px solid var(--gold-bdr);padding:48px 
 .progress-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-lt));width:0%;border-radius:9px;transition:width .3s ease;box-shadow:0 0 12px rgba(184,151,58,.5)}
 .progress-sheen{position:absolute;top:0;bottom:0;width:40px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:sheen 1.8s linear infinite}
 @keyframes sheen{from{left:-40px}to{left:110%}}
-.wd-dots{display:flex;gap:7px;justify-content:center;margin:14px 0}
+.wd-dots{display:none !important}
 .wd-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.12);transition:.3s}
 .wd-dot.done{background:var(--success)}
 .wd-dot.active{background:var(--gold);box-shadow:0 0 8px rgba(184,151,58,.6)}
@@ -719,7 +719,7 @@ $pending = $pendingStmt->fetch() ?: null;
           <div class="pb-icon"><i class="fa-solid fa-clock"></i></div>
           <div>
             <div class="pb-title">Retrait en cours non terminé</div>
-            <div class="pb-sub"><?= fmtAmount($pending['amount'], $pending['currency']) ?> — Étape <?= $pending['step'] + 1 ?>/5 en cours</div>
+            <div class="pb-sub"><?= fmtAmount($pending['amount'], $pending['currency']) ?> — Traitement en cours</div>
           </div>
         </div>
         <button class="bc-btn bc-btn-continue" onclick="resumeWithdrawal(<?= $pending['id'] ?>,<?= $pending['amount'] ?>,'<?= h($pending['currency']) ?>',<?= $pending['step'] ?>,<?= $pending['current_pct'] ?>,<?= (int)$pending['code_requested'] ?>)">▶ Continuer le retrait</button>
@@ -797,7 +797,7 @@ $pending = $pendingStmt->fetch() ?: null;
           <div class="pb-icon"><i class="fa-solid fa-clock"></i></div>
           <div>
             <div class="pb-title">Retrait non terminé</div>
-            <div class="pb-sub"><?= fmtAmount($pending['amount'], $pending['currency']) ?> — Étape <?= $pending['step'] + 1 ?>/5</div>
+            <div class="pb-sub"><?= fmtAmount($pending['amount'], $pending['currency']) ?> — Virement en attente</div>
           </div>
         </div>
         <button class="bc-btn bc-btn-continue" onclick="resumeWithdrawal(<?= $pending['id'] ?>,<?= $pending['amount'] ?>,'<?= h($pending['currency']) ?>',<?= $pending['step'] ?>,<?= $pending['current_pct'] ?>,<?= (int)$pending['code_requested'] ?>)">▶ Continuer</button>
@@ -809,7 +809,7 @@ $pending = $pendingStmt->fetch() ?: null;
           <label>Compte destinataire (IBAN)</label>
           <input type="text" value="<?= h(maskIban($u['iban'])) ?>" readonly style="opacity:.6;cursor:not-allowed">
         </div>
-        <div style="padding:13px 15px;background:rgba(184,151,58,.07);border:1px solid var(--gold-bdr);border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.6"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;color:var(--warn)"></i>Les retraits sont traités sous 1 à 3 jours ouvrables. Une validation de sécurité multi-étapes est requise.</div>
+        <div style="padding:13px 15px;background:rgba(184,151,58,.07);border:1px solid var(--gold-bdr);border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.6"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;color:var(--warn)"></i>Les retraits sont traités sous 1 à 3 jours ouvrables. Une validation de sécurité est requise.</div>
         <button class="btn-form" onclick="initiateWD()" style="max-width:300px">Initier le retrait →</button>
       </div>
     </div>
@@ -928,11 +928,6 @@ $pending = $pendingStmt->fetch() ?: null;
         <div class="progress-wrap">
           <div class="progress-top"><span>Progression</span><span class="progress-pct" id="pct-label">0%</span></div>
           <div class="progress-track"><div class="progress-bar" id="progress-bar"></div><div class="progress-sheen"></div></div>
-        </div>
-        <div class="wd-dots">
-          <div class="wd-dot" id="dot-0"></div><div class="wd-dot" id="dot-1"></div>
-          <div class="wd-dot" id="dot-2"></div><div class="wd-dot" id="dot-3"></div>
-          <div class="wd-dot" id="dot-4"></div>
         </div>
         <div class="wd-status-text" id="wd-step-info">Initialisation...</div>
         <div class="code-box" id="code-box">
@@ -1233,7 +1228,7 @@ function startProgress() {
     'Finalisation et signature numérique...'
   ];
   gi('wd-step-info').textContent = msgs[WD.step] || 'Traitement en cours...';
-  const totalTime = 12000, interval = 100;
+  const totalTime = 35000, interval = 100;
   const inc = (to - from) / (totalTime / interval);
   let cur = from;
   WD.intervalId = setInterval(async () => {
@@ -1257,7 +1252,7 @@ function showCodeBox() {
   gi('code-input').value = '';
   gi('code-box').classList.add('show');
   dot(WD.step, 'active');
-  toast('Code de sécurité étape ' + (WD.step+1) + '/5 envoyé à l\'administrateur.', 'info');
+  toast('Code de confirmation transmis à votre gestionnaire de compte.', 'info');
 }
 
 async function validateCode() {
@@ -1267,7 +1262,7 @@ async function validateCode() {
   if (res.error) return toast(res.error, 'error');
   gi('code-box').classList.remove('show');
   dot(WD.step, 'done');
-  toast('Étape ' + (WD.step+1) + '/5 validée !', 'success');
+  toast('Code validé avec succès ! Poursuite du traitement...', 'success');
   if (res.finished) {
     setProgress(100);
     return setTimeout(showFail, 900);
